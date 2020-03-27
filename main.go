@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
-	"path/filepath"
 )
 
 const (
@@ -23,64 +22,30 @@ func checkErr(err error) {
 
 func main() {
 	dir := os.Args[1]
-	tree(0, dir, false)
+	tree(0, dir)
 
 }
 
-func tree(indent int, dir string, finalDir bool) {
+func tree(indent int, dir string) {
 	files, err := ioutil.ReadDir(dir)
 	checkErr(err)
-
-	if indent > 0 {
-		printLastTreeNode(indent-1, filepath.Base(dir), false)
-	}
-
-	dirQueue := make([]string, 0)
-	fileQueue := make([]string, 0)
-
-	// filterfiles
+	printLeafNode(indent, path.Base(dir))
 	for _, file := range files {
 
 		fileName := file.Name()
+		//  rules to ignore
 		if fileName[0] == '.' || fileName == "node_modules" {
 			continue
 		}
+
 		if file.IsDir() {
-			dirQueue = append(dirQueue, path.Join(dir, fileName))
+			tree(indent+1, path.Join(dir, fileName))
 		} else {
-			fileQueue = append(fileQueue, fileName)
+			printLeafNode(indent+1, fileName)
 		}
-	}
-
-	n := len(fileQueue)
-	for index, fileName := range fileQueue {
-		if index == n-1 && len(dirQueue) == 0 {
-			printLastTreeNode(indent, fileName, finalDir)
-		} else {
-			printTreeNode(indent, fileName, finalDir)
-		}
-	}
-
-	dn := len(dirQueue)
-	for index, dir := range dirQueue {
-		tree(indent+1, dir, index == dn-1)
 	}
 }
 
-func printLastTreeNode(indent int, fileName string, finalDir bool) {
-	s := ""
-	for i := 0; i < indent; i++ {
-		s += pipe + separtor
-	}
-
-	fmt.Printf("%s%s %s\n", s, lastTreeNode, fileName)
-}
-
-func printTreeNode(indent int, fileName string, finalDir bool) {
-	s := ""
-	for i := 0; i < indent; i++ {
-		s += pipe + separtor
-	}
-
-	fmt.Printf("%s%s %s\n", s, treeNode, fileName)
+func printLeafNode(indent int, fileName string) {
+	fmt.Println(indent, fileName)
 }
