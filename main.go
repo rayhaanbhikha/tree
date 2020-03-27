@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
-	"strings"
 )
 
 const (
@@ -23,13 +22,11 @@ func checkErr(err error) {
 
 func main() {
 	dir := os.Args[1]
-	d := make([]string, 0)
 	fmt.Println(dir)
-	tree(d, 0, dir)
-
+	tree("", dir)
 }
 
-func tree(d []string, indent int, dir string) {
+func tree(indent string, dir string) {
 	files, err := ioutil.ReadDir(dir)
 	checkErr(err)
 	n := len(files)
@@ -41,26 +38,23 @@ func tree(d []string, indent int, dir string) {
 			continue
 		}
 
+		print(indent, fileName, index == n-1)
+
 		if file.IsDir() {
-			printLeafNode(d, indent+1, fileName, index == n-1)
-			tempD := make([]string, 0)
-			copy(tempD, d)
+			newfileName := path.Join(dir, fileName)
 			if index == n-1 {
-				tempD = append(d, separtor)
+				tree(indent+separtor, newfileName)
 			} else {
-				tempD = append(d, pipe)
+				tree(indent+pipe, newfileName)
 			}
-			tree(tempD, indent+1, path.Join(dir, fileName))
-		} else {
-			printLeafNode(d, indent+1, fileName, index == n-1)
 		}
 	}
 }
 
-func printLeafNode(d []string, indent int, fileName string, finalNode bool) {
+func print(indent string, fileName string, finalNode bool) {
 	if finalNode {
-		fmt.Printf("%s%s %s\n", strings.Join(d, ""), lastTreeNode, fileName)
+		fmt.Printf("%s%s %s\n", indent, lastTreeNode, fileName)
 	} else {
-		fmt.Printf("%s%s %s\n", strings.Join(d, ""), treeNode, fileName)
+		fmt.Printf("%s%s %s\n", indent, treeNode, fileName)
 	}
 }
