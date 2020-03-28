@@ -12,19 +12,20 @@ const (
 	separtor     = "    "
 	treeNode     = "├──"
 	lastTreeNode = "└──"
-	maxLevel     = 3
 )
 
-var flagDir string
+var dir string
+var maxLevel int
 
 func init() {
-	flag.StringVar(&flagDir, "d", ".", "directory to list tree")
+	flag.StringVar(&dir, "d", ".", "directory to list tree")
+	flag.IntVar(&maxLevel, "l", 5, "max level")
 	flag.Parse()
 }
 
 func main() {
-	fmt.Println(flagDir)
-	err := tree("", flagDir, 0)
+	fmt.Println(dir)
+	err := tree("", dir, 0)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
