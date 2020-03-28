@@ -1,9 +1,9 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io/ioutil"
-	"os"
 	"path"
 )
 
@@ -14,12 +14,18 @@ const (
 	lastTreeNode = "└──"
 )
 
+var flagDir string
+
+func init() {
+	flag.StringVar(&flagDir, "d", ".", "directory to list tree")
+	flag.Parse()
+}
+
 func main() {
-	dir := os.Args[1]
-	fmt.Println(dir)
-	err := tree("", dir)
+	fmt.Println(flagDir)
+	err := tree("", flagDir)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err.Error())
 	}
 }
 
