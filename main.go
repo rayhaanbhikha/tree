@@ -12,6 +12,7 @@ const (
 	separtor     = "    "
 	treeNode     = "├──"
 	lastTreeNode = "└──"
+	maxLevel     = 3
 )
 
 var flagDir string
@@ -23,13 +24,13 @@ func init() {
 
 func main() {
 	fmt.Println(flagDir)
-	err := tree("", flagDir)
+	err := tree("", flagDir, 0)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 }
 
-func tree(indent string, dir string) error {
+func tree(indent string, dir string, clevel int) error {
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
 		return fmt.Errorf("cannot read files from %s: %v", dir, err)
@@ -47,11 +48,15 @@ func tree(indent string, dir string) error {
 			continue
 		}
 
+		if clevel == maxLevel {
+			return nil
+		}
+
 		newDir := path.Join(dir, fileName)
 		if index == n-1 {
-			err = tree(indent+separtor, newDir)
+			err = tree(indent+separtor, newDir, clevel+1)
 		} else {
-			err = tree(indent+pipe, newDir)
+			err = tree(indent+pipe, newDir, clevel+1)
 		}
 		if err != nil {
 			return err
