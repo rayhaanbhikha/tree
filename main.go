@@ -4,7 +4,10 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path"
+
+	"github.com/rayhaanbhikha/tree/build"
 )
 
 const (
@@ -14,8 +17,10 @@ const (
 	lastTreeNode = "└──"
 )
 
-var dir string
-var maxLevel int
+var (
+	dir      string
+	maxLevel int
+)
 
 func init() {
 	flag.StringVar(&dir, "d", ".", "directory to list tree")
@@ -24,6 +29,12 @@ func init() {
 }
 
 func main() {
+
+	if len(os.Args) > 1 && os.Args[1] == "version" {
+		fmt.Printf("tree version %s\n", build.Version)
+		return
+	}
+
 	fmt.Println(dir)
 	err := tree("", dir, 0)
 	if err != nil {
