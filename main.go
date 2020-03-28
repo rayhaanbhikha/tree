@@ -9,46 +9,49 @@ import (
 
 const (
 	pipe         = "│   "
+	separtor     = "    "
 	treeNode     = "├──"
 	lastTreeNode = "└──"
-	separtor     = "    "
 )
-
-func checkErr(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
 
 func main() {
 	dir := os.Args[1]
 	fmt.Println(dir)
-	tree("", dir)
+	err := tree("", dir)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
-func tree(indent string, dir string) {
+func tree(indent string, dir string) error {
 	files, err := ioutil.ReadDir(dir)
-	checkErr(err)
+	if err != nil {
+		return fmt.Errorf("cannot read files from %s: %v", dir, err)
+	}
 	n := len(files)
 	for index, file := range files {
 
 		fileName := file.Name()
-		//  rules to ignore
 		if fileName[0] == '.' || fileName == "node_modules" {
 			continue
 		}
 
 		print(indent, fileName, index == n-1)
+		if !file.IsDir() {
+			continue
+		}
 
-		if file.IsDir() {
-			newfileName := path.Join(dir, fileName)
-			if index == n-1 {
-				tree(indent+separtor, newfileName)
-			} else {
-				tree(indent+pipe, newfileName)
-			}
+		newDir := path.Join(dir, fileName)
+		if index == n-1 {
+			err = tree(indent+separtor, newDir)
+		} else {
+			err = tree(indent+pipe, newDir)
+		}
+		if err != nil {
+			return err
 		}
 	}
+	return nil
 }
 
 func print(indent string, fileName string, finalNode bool) {
